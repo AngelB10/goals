@@ -19,7 +19,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 RUN a2enmod rewrite
 
-RUN echo '<VirtualHost *:80>
+RUN printf '<VirtualHost *:80>
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/html/public
     <Directory /var/www/html/public>
