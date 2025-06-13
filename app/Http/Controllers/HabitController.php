@@ -21,7 +21,7 @@ class HabitController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:diaria,semanal,única,recurrente',
+            'type' => 'required|in:diaria,semanal,mensual,anual,unica,recurrente',
             'frequency' => 'nullable|integer|min:1',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
