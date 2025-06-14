@@ -16,25 +16,47 @@ class HabitController extends Controller
         return response()->json($habits);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'type' => 'required|in:diaria,semanal,mensual,anual,unica,recurrente',
-            'frequency' => 'nullable|integer|min:1',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'time' => 'nullable',
-            'category_id' => 'required|exists:categories,id',
-            'target' => 'nullable|integer|min:1',
-        ]);
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'type' => 'required|in:diaria,semanal,mensual,anual,unica,recurrente',
+        'frequency' => 'nullable|integer|min:1',
+        'start_date' => 'required|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'time' => 'nullable',
+        'category_id' => 'required|exists:categories,id',
+        'target' => 'nullable|integer|min:1',
+        'days_of_week' => 'nullable|array',
+        'days_of_week.*' => 'string',
+        'subItems' => 'nullable|array',
+        'subItems.*.title' => 'required|string|max:255',
+        'subItems.*.done' => 'required|boolean',
+    ]);
 
-        $validated['user_id'] = Auth::id();
-        $habit = Habit::create($validated);
+    $validated['user_id'] = Auth::id();
 
-        return response()->json($habit, 201);
+    $habit = Habit::create($validated);
+
+
+    if (!empty($validated['days_of_week'])) {
+        $habit->days_of_week = $validated['days_of_week']; 
+        $habit->save();
     }
+
+    if (!empty($validated['subItems'])) {
+        foreach ($validated['subItems'] as $item) {
+            $habit->subItems()->create([
+                'title' => $item['title'],
+                'done' => $item['done']
+            ]);
+        }
+    }
+
+    return response()->json($habit->load('subItems'), 201);
+}
+
 
 
     public function complete($id)
