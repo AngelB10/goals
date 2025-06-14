@@ -14,6 +14,9 @@ class Habit extends Model
         'start_date', 'end_date', 'time', 'category_id',
         'user_id', 'completed', 'progress', 'target'
     ];
+    protected $casts = [
+        'days_of_week' => 'array',
+    ];
 
     public function category()
     {
