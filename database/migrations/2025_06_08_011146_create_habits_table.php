@@ -19,7 +19,7 @@ return new class extends Migration
         $table->unsignedInteger('frequency')->default(1); 
         $table->json('days_of_week')->nullable();
         $table->date('start_date');
-        $table->date('end_date');
+        $table->date('end_date')->nullable()->change();
         $table->time('time')->nullable();
         $table->unsignedBigInteger('category_id');
         $table->unsignedBigInteger('user_id');
