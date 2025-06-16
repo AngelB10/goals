@@ -70,6 +70,33 @@ class HabitController extends Controller
         return response()->json(['message' => 'Hábito marcado como completado', 'habit' => $habit]);
     }
 
+public function uncomplete($id)
+{
+    $user = Auth::user();
+    $habit = Habit::where('id', $id)
+        ->where('user_id', $user->id)
+        ->with('subItems') 
+        ->firstOrFail();
+
+    $habit->completed = false;
+
+    $completedSubitems = $habit->subItems()->where('done', true)->count();
+    $totalSubitems = $habit->subItems()->count();
+
+    $habit->progress = $totalSubitems > 0 
+        ? round(($completedSubitems / $totalSubitems) * 100) 
+        : 0;
+
+    $habit->save();
+
+    return response()->json([
+        'message' => 'Hábito desmarcado como no cumplido.',
+        'habit' => $habit
+    ]);
+}
+
+
+
     public function show($id)
     {
         $habit = Habit::with('subItems', 'category')->findOrFail($id);

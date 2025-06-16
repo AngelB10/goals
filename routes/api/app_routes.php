@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/habits/{id}', [HabitController::class, 'destroy']); 
     Route::post('/habits/{id}/complete', [HabitController::class, 'complete']); 
     Route::post('/habits/{id}/progress', [HabitController::class, 'progressHabit']); 
+    Route::post('/habits/{id}/uncomplete', [HabitController::class, 'uncomplete']);
+
 
     // SUBITEMS
     Route::post('/habits/{id}/subitems', [SubItemController::class, 'store']); 
