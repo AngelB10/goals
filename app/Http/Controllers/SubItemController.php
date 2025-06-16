@@ -31,21 +31,40 @@ class SubItemController extends Controller
     }
 
 
-    public function toggle($id)
-    {
-        $user = Auth::user();
+   public function toggle($id)
+{
+    $user = Auth::user();
 
-        $subItem = SubItem::findOrFail($id);
+    $subItem = SubItem::with('habit')->whereHas('habit', function ($query) use ($user) {
+        $query->where('user_id', $user->id);
+    })->findOrFail($id);
 
-        if ($subItem->habit->user_id !== $user->id) {
-            return response()->json(['message' => 'No autorizado'], 403);
-        }
+    $subItem->done = !$subItem->done;
+    $subItem->save();
+    $habit = $subItem->habit;
 
-        $subItem->done = !$subItem->done;
-        $subItem->save();
+    $completedSubitems = $habit->subItems()->where('done', true)->count();
+    $totalSubitems = $habit->subItems()->count();
 
-        return response()->json(['message' => 'Estado actualizado', 'subitem' => $subItem]);
+    $habit->progress = $totalSubitems > 0 
+        ? round(($completedSubitems / $totalSubitems) * 100) 
+        : 0;
+
+    if ($completedSubitems < $totalSubitems) {
+        $habit->completed = false;
+    } else if ($totalSubitems > 0 && $completedSubitems === $totalSubitems) {
+        $habit->completed = true;
     }
+
+    $habit->save();
+
+    return response()->json([
+        'message' => 'Subtarea actualizada',
+        'subitem' => $subItem,
+        'habit' => $habit
+    ]);
+}
+
 
         public function update(Request $request, $id)
     {
